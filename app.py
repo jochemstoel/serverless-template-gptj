@@ -32,12 +32,25 @@ def inference(model_inputs:dict) -> dict:
     prompt = model_inputs.get('prompt', None)
     if prompt == None:
         return {'message': "No prompt provided"}
+
+    max_length = model_inputs.get('max_length', 100)
+    if max_length == None:
+        max_length = 100
+
+    temperature = model_inputs.get('temperature', 1.0)
+    if temperature == None:
+        temperature = 1.0
     
     # Tokenize inputs
     input_tokens = tokenizer.encode(prompt, return_tensors="pt").to(device)
 
     # Run the model
-    output = model.generate(input_tokens)
+    output = model.generate(
+        input_tokens,
+        do_sample=True,
+        temperature=temperature,
+        max_length=max_length
+    )
 
     # Decode output tokens
     output_text = tokenizer.batch_decode(output, skip_special_tokens = True)[0]
